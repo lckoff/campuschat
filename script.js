@@ -14,14 +14,19 @@ function showApp(show){
 }
 
 async function fetchProfile(user) {
-  const { data, error } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
-  if (error && error.code !== 'PGRST116') throw error;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', user.id)
+    .single();
+  if (error && error.code !== 'PGRST116') throw error; // ignore "no rows"
   return data || null;
 }
 
 async function upsertProfile(user, {first_name, last_name, class_label}) {
   const { error } = await supabase.from('profiles').upsert({
-    user_id: user.id, first_name, last_name, class_label
+    user_id: user.id,
+    first_name, last_name, class_label
   });
   if (error) throw error;
 }
@@ -33,6 +38,7 @@ function paintMeCard(){
   $('#me-avatar').style.backgroundImage = state.profile.avatar_url ? `url(${state.profile.avatar_url})` : '';
 }
 
+/** -------- SIGN UP (sans insert profile, on attend la connexion) -------- */
 async function signUpFlow(){
   const modal = $('#modal-signup'); modal.showModal();
   $('#su-msg').textContent = '';
@@ -49,28 +55,24 @@ async function signUpFlow(){
 
     if(!first || !last || !clazz || !email || !pwd) return toast($('#su-msg'), "Champs manquants.", false);
 
-    // 1) création compte (envoie l’e-mail de vérif)
-    const { data, error } = await supabase.auth.signUp({
-      email, password: pwd, options: { emailRedirectTo: location.origin }
+    // 1) Création du compte -> envoie e-mail de vérification
+    const { error } = await supabase.auth.signUp({
+      email, password: pwd,
+      options: {
+        emailRedirectTo: "https://lckoff.github.io/campuschat/"
+      }
     });
     if(error) return toast($('#su-msg'), error.message, false);
 
-    const user = data.user;
-    try { await upsertProfile(user, { first_name:first, last_name:last, class_label:clazz }); }
-    catch (err) { return toast($('#su-msg'), "Profil: " + err.message, false); }
+    // 2) On garde les infos pour créer le profil APRÈS connexion
+    localStorage.setItem("pendingProfile", JSON.stringify({first, last, clazz}));
 
-    // 3) upload carnet (facultatif)
-    const file = $('#su-proof').files[0];
-    if(file){
-      try { await uploadProof(user.id, file); }
-      catch(err){ console.warn(err); toast($('#su-msg'), "Preuve non envoyée (facultatif).", false); }
-    }
-
-    toast($('#su-msg'), "Compte créé. Vérifiez votre e-mail pour activer le compte.", true);
-    setTimeout(()=>modal.close(), 1800);
+    toast($('#su-msg'), "Compte créé. Vérifiez votre e-mail, cliquez sur le lien, puis revenez vous connecter.", true);
+    setTimeout(()=>modal.close(), 2000);
   };
 }
 
+/** -------- LOGIN -------- */
 async function loginFlow(){
   const modal = $('#modal-login'); modal.showModal();
   $('#li-msg').textContent = '';
@@ -84,6 +86,7 @@ async function loginFlow(){
   };
 }
 
+/** -------- UPLOAD PROOF (facultatif) -------- */
 async function uploadProof(userId, file){
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
   const path = `${userId}/${Date.now()}.${ext}`;
@@ -100,6 +103,7 @@ async function uploadProof(userId, file){
   if(dbErr) throw dbErr;
 }
 
+/** -------- UI BINDINGS -------- */
 function bindUI(){
   $('#btn-signup').onclick = signUpFlow;
   $('#hero-signup').onclick = signUpFlow;
@@ -109,6 +113,7 @@ function bindUI(){
 
   $('#btn-logout').onclick = async ()=>{ await supabase.auth.signOut(); };
 
+  // Upload preuve depuis la sidebar
   $('#btn-upload-proof').onclick = ()=>{
     const m = $('#modal-proof'); m.showModal();
     $('#pf-msg').textContent='';
@@ -118,11 +123,17 @@ function bindUI(){
       if(!file) return toast($('#pf-msg'), "Choisissez une image.", false);
       const { data: { user } } = await supabase.auth.getUser();
       if(!user) return toast($('#pf-msg'), "Non connecté.", false);
-      try{ await uploadProof(user.id, file); toast($('#pf-msg'), "Preuve envoyée. Elle sera automatiquement supprimée.", true); setTimeout(()=>$('#modal-proof').close(), 1200); }
-      catch(err){ toast($('#pf-msg'), "Erreur: " + err.message, false); }
+      try{
+        await uploadProof(user.id, file);
+        toast($('#pf-msg'), "Preuve envoyée. Elle sera automatiquement supprimée.", true);
+        setTimeout(()=>$('#modal-proof').close(), 1200);
+      }catch(err){
+        toast($('#pf-msg'), "Erreur: " + err.message, false);
+      }
     };
   };
 
+  // Changement de salon
   $$('.room').forEach(el=>{
     el.onclick = ()=>{
       $$('.room').forEach(r=>r.classList.remove('active'));
@@ -135,17 +146,24 @@ function bindUI(){
     };
   });
 
+  // Composer
   $('#composer').onsubmit = async (e)=>{
     e.preventDefault();
     const body = $('#msg-input').value.trim();
     if(!body) return;
     const { data: { user } } = await supabase.auth.getUser();
     if(!user) return;
-    const { error } = await supabase.from('messages').insert({ room: state.room, user_id: user.id, body });
-    if(!error){ $('#msg-input').value = ''; $('#btn-send').style.transform='scale(0.96)'; setTimeout(()=>$('#btn-send').style.transform='',90); }
+    const { error } = await supabase.from('messages').insert({
+      room: state.room, user_id: user.id, body
+    });
+    if(!error){
+      $('#msg-input').value = '';
+      $('#btn-send').style.transform='scale(0.96)'; setTimeout(()=>$('#btn-send').style.transform='',90);
+    }
   };
 }
 
+/** -------- REALTIME -------- */
 let msgSub;
 function subscribeMessages(){
   if(msgSub) { supabase.removeChannel(msgSub); msgSub = null; }
@@ -158,7 +176,12 @@ function subscribeMessages(){
 }
 
 async function loadRecentMessages(){
-  const { data, error } = await supabase.from('messages').select('*').eq('room', state.room).order('created_at',{ ascending: true }).limit(100);
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('room', state.room)
+    .order('created_at',{ ascending: true })
+    .limit(100);
   if(error) return;
   $('#messages').innerHTML = '';
   data.forEach(m=>addMessage(m,false));
@@ -178,13 +201,30 @@ function addMessage(m, realtime){
   }
 }
 
+/** -------- FINALISATION PROFIL APRÈS CONNEXION -------- */
+async function finalizeProfileIfNeeded(user){
+  const pending = localStorage.getItem("pendingProfile");
+  if(!pending) return;
+  const exists = await fetchProfile(user);
+  if(exists) { localStorage.removeItem("pendingProfile"); return; }
+  const { first, last, clazz } = JSON.parse(pending);
+  try {
+    await upsertProfile(user, { first_name:first, last_name:last, class_label:clazz });
+  } finally {
+    localStorage.removeItem("pendingProfile");
+  }
+}
+
+/** -------- AUTH STATE -------- */
 async function onAuthChange(){
   supabase.auth.onAuthStateChange(async (_evt, session)=>{
     const user = session?.user || null;
     if(!user){ showApp(false); return; }
     state.sub = user.id;
+
+    await finalizeProfileIfNeeded(user);
+
     let profile = await fetchProfile(user);
-    if(!profile){ await upsertProfile(user, { first_name:'', last_name:'', class_label:'' }); profile = await fetchProfile(user); }
     state.profile = profile;
     paintMeCard();
     showApp(true);
@@ -193,6 +233,7 @@ async function onAuthChange(){
   });
 }
 
+/** -------- INIT -------- */
 document.addEventListener('DOMContentLoaded', ()=>{
   bindUI();
   onAuthChange();
