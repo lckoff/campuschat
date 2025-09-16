@@ -4,177 +4,136 @@
 <meta charset="utf-8" />
 <title>Campus Chat • Lycée</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="style.css" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="supabaseClient.js"></script>
-<script defer src="script.js?v=7"></script>
+<script defer src="script.js?v=8"></script>
 </head>
 <body>
 <header class="navbar">
 <div class="brand">Campus<span>Chat</span></div>
 <nav>
-<!-- Visible si déconnecté -->
+<!-- si déconnecté -->
 <div id="nav-auth">
 <button id="btn-login" class="ghost">Se connecter</button>
 <button id="btn-signup" class="primary">Créer un compte</button>
 </div>
-<!-- Visible si connecté -->
+<!-- si connecté -->
 <div id="nav-inapp" class="hidden">
 <button id="btn-directory" class="ghost">Annuaire</button>
-<button id="btn-settings" class="ghost">Réglages</button>
+<button id="btn-logout" class="ghost">Se déconnecter</button>
 </div>
 </nav>
 </header>
 
-<!-- Écran d’accueil (masqué si connecté) -->
+<!-- écran d’accueil (masqué dès qu’on est connecté) -->
 <section class="hero">
 <h1>Relie tout le lycée, simplement.</h1>
-<p>Chat général + MP + groupes. Données hébergées en UE.</p>
+<p>Chat général sans pub. Données hébergées en UE.</p>
 <div class="cta">
 <button id="hero-signup" class="primary large">Commencer</button>
 <button id="hero-login" class="ghost large">J’ai déjà un compte</button>
 </div>
-<div class="scroll-cue">▼</div>
 </section>
 
-<!-- Application -->
-<section class="app hidden" id="app">
+<!-- App -->
+<section id="app" class="app hidden">
 <aside class="sidebar">
-<div class="me" id="me-card">
-<div class="avatar" id="me-avatar"></div>
+<div class="me">
+<div class="avatar"></div>
 <div>
-<div class="name" id="me-name">–</div>
-<div class="class" id="me-class">–</div>
+<div id="me-name" class="name">–</div>
+<div id="me-class" class="class">–</div>
 </div>
 </div>
-
 <div class="rooms">
-<div class="room active" data-kind="room" data-room="general"># général</div>
-<div class="rooms-title">Conversations</div>
-<ul id="conv-list" class="conv-list"></ul>
-</div>
-
-<div class="actions">
-<button id="btn-new-group" class="ghost">Nouveau groupe</button>
-<button id="btn-upload-proof" class="ghost">Envoyer preuve (facultatif)</button>
-<button id="btn-logout" class="ghost">Se déconnecter</button>
+<div class="room active"># général</div>
 </div>
 </aside>
 
 <section class="chat">
 <header class="chat-header">
-<h2 id="room-title"># général</h2>
-<div id="chat-subtitle" class="subtitle"></div>
+<h2># général</h2>
 </header>
-<ul class="messages" id="messages"></ul>
-<form class="composer" id="composer" autocomplete="off">
-<input type="text" id="msg-input" placeholder="Écrire un message…" maxlength="1000" />
-<button class="primary" id="btn-send" type="submit">Envoyer</button>
+<ul id="messages" class="messages"></ul>
+<form id="composer" class="composer" autocomplete="off">
+<input id="msg-input" type="text" placeholder="Écrire un message…" maxlength="800" />
+<button type="submit" class="primary">Envoyer</button>
 </form>
 </section>
 </section>
 
-<!-- MODAL: Inscription -->
+<!-- MODAL: inscription -->
 <dialog id="modal-signup">
 <form method="dialog" class="modal-card" id="signup-form">
 <h3>Créer un compte</h3>
 <div class="tos">
-<h4>Conditions d’utilisation & confidentialité</h4>
-<p>Nous stockons <strong>prénom, nom, e-mail, classe</strong> pour vérifier l’appartenance au lycée et faire
-fonctionner le chat. La <strong>photo du carnet</strong> est <strong>facultative</strong> (en cas de vérif.)
-et <strong>supprimée automatiquement sous 72 h</strong>. Données hébergées en UE, jamais revendues.</p>
-<label class="checkbox"><input type="checkbox" id="chk-consent" required /> J’accepte ces conditions</label>
+<p>Nous stockons <b>prénom, nom, e-mail, classe</b> pour vérifier l’appartenance au lycée et faire fonctionner le chat. Données hébergées en UE, jamais revendues.</p>
+<label class="checkbox"><input id="chk-consent" type="checkbox" required /> J’accepte ces conditions</label>
 </div>
-
 <div class="grid">
-<label>Prénom<input type="text" id="su-first" required /></label>
-<label>Nom<input type="text" id="su-last" required /></label>
-<label>Classe<input type="text" id="su-class" placeholder="ex. 1ère B" required /></label>
-<label>E-mail<input type="email" id="su-email" autocomplete="email" required /></label>
+<label>Prénom<input id="su-first" required></label>
+<label>Nom<input id="su-last" required></label>
+<label>Classe<input id="su-class" placeholder="ex. 1ère B" required></label>
+<label>E-mail<input id="su-email" type="email" autocomplete="email" required></label>
 <label>Mot de passe
 <div class="pwd-wrap">
-<input type="password" id="su-password" minlength="8" required />
-<button type="button" id="su-toggle" class="icon-eye" aria-label="Afficher le mot de passe">👁</button>
+<input id="su-password" type="password" minlength="8" required>
+<button type="button" id="su-toggle" class="icon-eye">👁</button>
 </div>
 </label>
-<label>Photo carnet (facult.)<input type="file" id="su-proof" accept="image/*" /></label>
 </div>
-
 <menu>
 <button type="button" class="ghost close-modal">Annuler</button>
-<button id="su-submit" class="primary" value="default">Créer mon compte</button>
+<button id="su-submit" class="primary">Créer mon compte</button>
 </menu>
-<p class="hint">Un e-mail de vérification vous sera envoyé.</p>
-<div class="form-msg" id="su-msg"></div>
+<div id="su-msg" class="form-msg"></div>
 </form>
 </dialog>
 
-<!-- MODAL: Connexion -->
+<!-- MODAL: connexion -->
 <dialog id="modal-login">
 <form method="dialog" class="modal-card" id="login-form">
 <h3>Se connecter</h3>
-<label>E-mail<input type="email" id="li-email" autocomplete="email" required /></label>
+<label>E-mail<input id="li-email" type="email" autocomplete="email" required></label>
 <label>Mot de passe
 <div class="pwd-wrap">
-<input type="password" id="li-password" required />
-<button type="button" id="li-toggle" class="icon-eye" aria-label="Afficher le mot de passe">👁</button>
+<input id="li-password" type="password" required>
+<button type="button" id="li-toggle" class="icon-eye">👁</button>
 </div>
 </label>
 <menu>
 <button type="button" class="ghost close-modal">Annuler</button>
-<button id="li-submit" class="primary" value="default">Connexion</button>
+<button id="li-submit" class="primary">Connexion</button>
 </menu>
-<div class="form-msg" id="li-msg"></div>
+<div id="li-msg" class="form-msg"></div>
 </form>
 </dialog>
 
-<!-- MODAL: Upload preuve -->
-<dialog id="modal-proof">
-<form method="dialog" class="modal-card" id="proof-form">
-<h3>Envoyer une preuve (facultatif)</h3>
-<p>Masquez les infos inutiles (notes, adresse…). La preuve est supprimée automatiquement sous 72 h.</p>
-<label>Photo carnet<input type="file" id="pf-file" accept="image/*" required /></label>
-<menu>
-<button type="button" class="ghost close-modal">Fermer</button>
-<button id="pf-submit" class="primary" value="default">Envoyer</button>
-</menu>
-<div class="form-msg" id="pf-msg"></div>
-</form>
-</dialog>
-
-<!-- MODAL: Annuaire -->
+<!-- MODAL: annuaire -->
 <dialog id="modal-directory">
 <div class="modal-card directory-card">
 <div class="dir-header">
-<h3>Annuaire du lycée</h3>
-<input type="search" id="dir-q" placeholder="Rechercher prénom, nom ou classe…" />
+<h3>Annuaire</h3>
+<input id="dir-q" type="search" placeholder="Rechercher prénom, nom ou classe…" />
 </div>
 <ul id="dir-list" class="dir-list"></ul>
 <menu>
 <button type="button" class="ghost close-modal">Fermer</button>
-<button id="dir-dm" class="primary" disabled>MP</button>
-<button id="dir-group" class="ghost" disabled>Créer un groupe</button>
 </menu>
 </div>
 </dialog>
 
-<!-- MODAL: Réglages -->
-<dialog id="modal-settings">
-<form method="dialog" class="modal-card settings-card">
-<h3>Réglages</h3>
-<div class="grid">
-<label>Prénom<input type="text" id="st-first" /></label>
-<label>Nom<input type="text" id="st-last" /></label>
-<label>Classe<input type="text" id="st-class" /></label>
-<label>Bio<textarea id="st-bio" rows="3" placeholder="Quelques mots sur toi…"></textarea></label>
-<label>Photo de profil<input type="file" id="st-avatar" accept="image/*" /></label>
-</div>
+<!-- MODAL: fiche profil (lecture seule) -->
+<dialog id="modal-profile">
+<div class="modal-card">
+<h3>Profil</h3>
+<div id="pf-name" class="prof-name">–</div>
+<div id="pf-class" class="prof-class">–</div>
 <menu>
-<button type="button" class="ghost close-modal">Fermer</button>
-<button id="st-save" class="primary" value="default">Enregistrer</button>
+<button type="button" class="primary" onclick="document.getElementById('modal-profile').close()">Fermer</button>
 </menu>
-<div class="form-msg" id="st-msg"></div>
-</form>
+</div>
 </dialog>
 </body>
 </html>
