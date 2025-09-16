@@ -1,8 +1,3 @@
-
-LCK FORTNITE
-09:14 (il y a 1 minute)
-À moi
-
 <!doctype html>
 <html lang="fr">
 <head>
@@ -12,19 +7,25 @@ LCK FORTNITE
 <link href="style.css" rel="stylesheet" />
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="supabaseClient.js"></script>
-<!-- cache-buster pour charger la dernière version du script -->
-<script defer src="script.js?v=5"></script>
+<script defer src="script.js?v=6"></script>
 </head>
 <body>
 <header class="navbar">
 <div class="brand">Campus<span>Chat</span></div>
 <nav>
+<!-- Boutons visibles seulement si on n'est PAS connecté -->
+<div id="nav-auth">
 <button id="btn-login" class="ghost">Se connecter</button>
 <button id="btn-signup" class="primary">Créer un compte</button>
+</div>
+<!-- Boutons visibles seulement si on EST connecté -->
+<div id="nav-inapp" class="hidden">
+<button id="btn-directory" class="ghost">Annuaire</button>
+</div>
 </nav>
 </header>
 
-<!-- Écran d’accueil (caché automatiquement quand l’utilisateur est connecté) -->
+<!-- Écran d’accueil (masqué automatiquement si connecté) -->
 <section class="hero">
 <h1>Relie tout le lycée, simplement.</h1>
 <p>Chat général sans pub. Données hébergées en UE.</p>
@@ -135,6 +136,21 @@ Données hébergées en UE, jamais revendues.</p>
 </menu>
 <div class="form-msg" id="pf-msg"></div>
 </form>
+</dialog>
+
+<!-- MODAL: Annuaire -->
+<dialog id="modal-directory">
+<div class="modal-card directory-card">
+<div class="dir-header">
+<h3>Annuaire du lycée</h3>
+<input type="search" id="dir-q" placeholder="Rechercher un prénom, un nom ou une classe…" />
+</div>
+<ul id="dir-list" class="dir-list"></ul>
+<menu>
+<button type="button" class="ghost close-modal">Fermer</button>
+<button id="dir-create" class="primary" title="Bientôt : créer un groupe/MP" disabled>Créer un groupe (bientôt)</button>
+</menu>
+</div>
 </dialog>
 </body>
 </html>
