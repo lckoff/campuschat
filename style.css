@@ -1,6 +1,6 @@
 :root {
-  --bg:#0f1220; --panel:#171a2b; --soft:#21253a; --text:#e9ecff; --muted:#a7add7; --accent:#7a8cff;
-  --ok:#48d597; --warn:#ffcc66; --err:#ff7a7a;
+--bg:#0f1220; --panel:#171a2b; --soft:#21253a; --text:#e9ecff; --muted:#a7add7; --accent:#7a8cff;
+--ok:#48d597; --warn:#ffcc66; --err:#ff7a7a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto}
@@ -13,9 +13,11 @@ button.large{font-size:1.05rem}
 input,select{width:100%;padding:.7rem;border-radius:10px;border:1px solid var(--soft);background:#0e1120;color:var(--text)}
 label{display:block;margin:.5rem 0}
 .checkbox{display:flex;gap:.5rem;align-items:center}
+
 .navbar{position:sticky;top:0;z-index:10;background:rgba(15,18,32,.7);backdrop-filter:saturate(140%) blur(8px);display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;border-bottom:1px solid #1c2034}
 .brand{font-weight:800;letter-spacing:.5px}
 .brand span{color:var(--accent)}
+
 .hero{min-height:70vh;display:grid;place-items:center;text-align:center;padding:4rem 1rem;position:relative}
 .hero h1{font-size:3rem;margin:.2rem 0}
 .hero p{max-width:720px;margin:0 auto;color:var(--muted)}
@@ -25,6 +27,7 @@ label{display:block;margin:.5rem 0}
 
 .app{display:grid;grid-template-columns:300px 1fr;gap:0;height:80vh;border-top:1px solid #1c2034}
 .hidden{display:none}
+
 .sidebar{background:var(--panel);display:flex;flex-direction:column}
 .me{display:flex;gap:.8rem;align-items:center;padding:1rem;border-bottom:1px solid #1c2034}
 .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#363c63,#2a3154)}
@@ -54,9 +57,13 @@ dialog{border:0;border-radius:16px;padding:0;background:rgba(23,26,43,.9);color:
 .form-msg.ok{color:var(--ok)}
 .form-msg.err{color:var(--err)}
 
+.pwd-wrap{position:relative;display:flex;align-items:center}
+.pwd-wrap input{padding-right:44px}
+.icon-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:#0000;padding:.3rem .5rem;cursor:pointer}
+
 @media (max-width:900px){
-  .app{grid-template-columns:1fr}
-  .sidebar{order:2}
-  .chat{order:1;height:70vh}
-  .modal-card .grid{grid-template-columns:1fr}
+.app{grid-template-columns:1fr}
+.sidebar{order:2}
+.chat{order:1;height:70vh}
+.modal-card .grid{grid-template-columns:1fr}
 }
