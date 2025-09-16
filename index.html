@@ -1,119 +1,140 @@
+
+LCK FORTNITE
+09:14 (il y a 1 minute)
+À moi
+
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <title>Campus Chat • Lycée</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="style.css" rel="stylesheet" />
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="supabaseClient.js"></script>
-  <script defer src="script.js"></script>
+<meta charset="utf-8" />
+<title>Campus Chat • Lycée</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="style.css" rel="stylesheet" />
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="supabaseClient.js"></script>
+<!-- cache-buster pour charger la dernière version du script -->
+<script defer src="script.js?v=5"></script>
 </head>
 <body>
-  <header class="navbar">
-    <div class="brand">Campus<span>Chat</span></div>
-    <nav>
-      <button id="btn-login" class="ghost">Se connecter</button>
-      <button id="btn-signup" class="primary">Créer un compte</button>
-    </nav>
-  </header>
+<header class="navbar">
+<div class="brand">Campus<span>Chat</span></div>
+<nav>
+<button id="btn-login" class="ghost">Se connecter</button>
+<button id="btn-signup" class="primary">Créer un compte</button>
+</nav>
+</header>
 
-  <main>
-    <section class="hero">
-      <h1>Relie tout le lycée, simplement.</h1>
-      <p>Chat général, MP, salons par rôle — sans pub. Données en UE.</p>
-      <div class="cta">
-        <button id="hero-signup" class="primary large">Commencer</button>
-        <button id="hero-login" class="ghost large">J’ai déjà un compte</button>
-      </div>
-      <div class="scroll-cue">▼</div>
-    </section>
+<!-- Écran d’accueil (caché automatiquement quand l’utilisateur est connecté) -->
+<section class="hero">
+<h1>Relie tout le lycée, simplement.</h1>
+<p>Chat général sans pub. Données hébergées en UE.</p>
+<div class="cta">
+<button id="hero-signup" class="primary large">Commencer</button>
+<button id="hero-login" class="ghost large">J’ai déjà un compte</button>
+</div>
+<div class="scroll-cue">▼</div>
+</section>
 
-    <section class="app hidden" id="app">
-      <aside class="sidebar">
-        <div class="me" id="me-card">
-          <div class="avatar" id="me-avatar"></div>
-          <div class="name" id="me-name">–</div>
-          <div class="class" id="me-class">–</div>
-        </div>
-        <div class="rooms">
-          <div class="room active" data-room="general"># général</div>
-          <div class="room" data-room="profs"># professeurs</div>
-        </div>
-        <div class="actions">
-          <button id="btn-upload-proof" class="ghost">Envoyer preuve (facultatif)</button>
-          <button id="btn-logout" class="ghost">Se déconnecter</button>
-        </div>
-      </aside>
+<!-- Application -->
+<section class="app hidden" id="app">
+<aside class="sidebar">
+<div class="me" id="me-card">
+<div class="avatar" id="me-avatar"></div>
+<div>
+<div class="name" id="me-name">–</div>
+<div class="class" id="me-class">–</div>
+</div>
+</div>
 
-      <section class="chat">
-        <header class="chat-header">
-          <h2 id="room-title"># général</h2>
-        </header>
-        <ul class="messages" id="messages"></ul>
-        <form class="composer" id="composer">
-          <input type="text" id="msg-input" placeholder="Écrire un message…" maxlength="800" />
-          <button class="primary" id="btn-send" type="submit">Envoyer</button>
-        </form>
-      </section>
-    </section>
-  </main>
+<div class="rooms">
+<div class="room active" data-room="general"># général</div>
+</div>
 
-  <!-- MODAL: CGU / Inscription -->
-  <dialog id="modal-signup">
-    <form method="dialog" class="modal-card" id="signup-form">
-      <h3>Créer un compte</h3>
-      <div class="tos">
-        <h4>Conditions d’utilisation & confidentialité</h4>
-        <p>Nous stockons <strong>prénom</strong>, <strong>nom</strong>, <strong>e-mail</strong> et <strong>classe</strong>
-          pour vérifier l’appartenance au lycée et faire fonctionner le chat/MP. La
-          <strong>photo du carnet</strong> est <strong>facultative</strong>, uniquement en cas de vérification, et
-          <strong>supprimée automatiquement sous 72 h</strong>. Données hébergées en UE, jamais revendues.</p>
-        <label class="checkbox"><input type="checkbox" id="chk-consent" required /> J’accepte ces conditions</label>
-      </div>
-      <div class="grid">
-        <label>Prénom<input type="text" id="su-first" required /></label>
-        <label>Nom<input type="text" id="su-last" required /></label>
-        <label>Classe<input type="text" id="su-class" placeholder="ex. 1ère B" required /></label>
-        <label>E-mail<input type="email" id="su-email" autocomplete="email" required /></label>
-        <label>Mot de passe<input type="password" id="su-password" minlength="8" required /></label>
-        <label>Photo carnet (facult.)<input type="file" id="su-proof" accept="image/*" /></label>
-      </div>
-      <menu>
-        <button value="cancel" class="ghost">Annuler</button>
-        <button id="su-submit" class="primary" value="default">Créer mon compte</button>
-      </menu>
-      <p class="hint">Un e-mail de vérification vous sera envoyé.</p>
-      <div class="form-msg" id="su-msg"></div>
-    </form>
-  </dialog>
+<div class="actions">
+<button id="btn-upload-proof" class="ghost">Envoyer preuve (facultatif)</button>
+<button id="btn-logout" class="ghost">Se déconnecter</button>
+</div>
+</aside>
 
-  <!-- MODAL: Login -->
-  <dialog id="modal-login">
-    <form method="dialog" class="modal-card" id="login-form">
-      <h3>Se connecter</h3>
-      <label>E-mail<input type="email" id="li-email" autocomplete="email" required /></label>
-      <label>Mot de passe<input type="password" id="li-password" required /></label>
-      <menu>
-        <button value="cancel" class="ghost">Annuler</button>
-        <button id="li-submit" class="primary" value="default">Connexion</button>
-      </menu>
-      <div class="form-msg" id="li-msg"></div>
-    </form>
-  </dialog>
+<section class="chat">
+<header class="chat-header">
+<h2 id="room-title"># général</h2>
+</header>
+<ul class="messages" id="messages"></ul>
+<form class="composer" id="composer" autocomplete="off">
+<input type="text" id="msg-input" placeholder="Écrire un message…" maxlength="800" />
+<button class="primary" id="btn-send" type="submit">Envoyer</button>
+</form>
+</section>
+</section>
 
-  <!-- MODAL: Upload preuve -->
-  <dialog id="modal-proof">
-    <form method="dialog" class="modal-card" id="proof-form">
-      <h3>Envoyer une preuve (facultatif)</h3>
-      <p>Masquez les infos inutiles (notes, adresse…). La preuve est supprimée automatiquement.</p>
-      <label>Photo carnet<input type="file" id="pf-file" accept="image/*" required /></label>
-      <menu>
-        <button value="cancel" class="ghost">Fermer</button>
-        <button id="pf-submit" class="primary" value="default">Envoyer</button>
-      </menu>
-      <div class="form-msg" id="pf-msg"></div>
-    </form>
-  </dialog>
+<!-- MODAL: Inscription -->
+<dialog id="modal-signup">
+<form method="dialog" class="modal-card" id="signup-form">
+<h3>Créer un compte</h3>
+<div class="tos">
+<h4>Conditions d’utilisation & confidentialité</h4>
+<p>Nous stockons <strong>prénom</strong>, <strong>nom</strong>, <strong>e-mail</strong> et <strong>classe</strong>
+pour vérifier l’appartenance au lycée et faire fonctionner le chat. La <strong>photo du carnet</strong> est
+<strong>facultative</strong> (en cas de vérification) et <strong>supprimée automatiquement sous 72 h</strong>.
+Données hébergées en UE, jamais revendues.</p>
+<label class="checkbox"><input type="checkbox" id="chk-consent" required /> J’accepte ces conditions</label>
+</div>
+
+<div class="grid">
+<label>Prénom<input type="text" id="su-first" required /></label>
+<label>Nom<input type="text" id="su-last" required /></label>
+<label>Classe<input type="text" id="su-class" placeholder="ex. 1ère B" required /></label>
+<label>E-mail<input type="email" id="su-email" autocomplete="email" required /></label>
+<label>Mot de passe
+<div class="pwd-wrap">
+<input type="password" id="su-password" minlength="8" required />
+<button type="button" id="su-toggle" class="icon-eye" aria-label="Afficher le mot de passe">👁</button>
+</div>
+</label>
+<label>Photo carnet (facult.)<input type="file" id="su-proof" accept="image/*" /></label>
+</div>
+
+<menu>
+<button type="button" class="ghost close-modal">Annuler</button>
+<button id="su-submit" class="primary" value="default">Créer mon compte</button>
+</menu>
+<p class="hint">Un e-mail de vérification vous sera envoyé.</p>
+<div class="form-msg" id="su-msg"></div>
+</form>
+</dialog>
+
+<!-- MODAL: Connexion -->
+<dialog id="modal-login">
+<form method="dialog" class="modal-card" id="login-form">
+<h3>Se connecter</h3>
+<label>E-mail<input type="email" id="li-email" autocomplete="email" required /></label>
+<label>Mot de passe
+<div class="pwd-wrap">
+<input type="password" id="li-password" required />
+<button type="button" id="li-toggle" class="icon-eye" aria-label="Afficher le mot de passe">👁</button>
+</div>
+</label>
+<menu>
+<button type="button" class="ghost close-modal">Annuler</button>
+<button id="li-submit" class="primary" value="default">Connexion</button>
+</menu>
+<div class="form-msg" id="li-msg"></div>
+</form>
+</dialog>
+
+<!-- MODAL: Upload preuve -->
+<dialog id="modal-proof">
+<form method="dialog" class="modal-card" id="proof-form">
+<h3>Envoyer une preuve (facultatif)</h3>
+<p>Masquez les infos inutiles (notes, adresse…). La preuve est supprimée automatiquement sous 72 h.</p>
+<label>Photo carnet<input type="file" id="pf-file" accept="image/*" required /></label>
+<menu>
+<button type="button" class="ghost close-modal">Fermer</button>
+<button id="pf-submit" class="primary" value="default">Envoyer</button>
+</menu>
+<div class="form-msg" id="pf-msg"></div>
+</form>
+</dialog>
 </body>
 </html>
