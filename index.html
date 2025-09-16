@@ -7,28 +7,29 @@
 <link href="style.css" rel="stylesheet" />
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="supabaseClient.js"></script>
-<script defer src="script.js?v=6"></script>
+<script defer src="script.js?v=7"></script>
 </head>
 <body>
 <header class="navbar">
 <div class="brand">Campus<span>Chat</span></div>
 <nav>
-<!-- Boutons visibles seulement si on n'est PAS connecté -->
+<!-- Visible si déconnecté -->
 <div id="nav-auth">
 <button id="btn-login" class="ghost">Se connecter</button>
 <button id="btn-signup" class="primary">Créer un compte</button>
 </div>
-<!-- Boutons visibles seulement si on EST connecté -->
+<!-- Visible si connecté -->
 <div id="nav-inapp" class="hidden">
 <button id="btn-directory" class="ghost">Annuaire</button>
+<button id="btn-settings" class="ghost">Réglages</button>
 </div>
 </nav>
 </header>
 
-<!-- Écran d’accueil (masqué automatiquement si connecté) -->
+<!-- Écran d’accueil (masqué si connecté) -->
 <section class="hero">
 <h1>Relie tout le lycée, simplement.</h1>
-<p>Chat général sans pub. Données hébergées en UE.</p>
+<p>Chat général + MP + groupes. Données hébergées en UE.</p>
 <div class="cta">
 <button id="hero-signup" class="primary large">Commencer</button>
 <button id="hero-login" class="ghost large">J’ai déjà un compte</button>
@@ -48,10 +49,13 @@
 </div>
 
 <div class="rooms">
-<div class="room active" data-room="general"># général</div>
+<div class="room active" data-kind="room" data-room="general"># général</div>
+<div class="rooms-title">Conversations</div>
+<ul id="conv-list" class="conv-list"></ul>
 </div>
 
 <div class="actions">
+<button id="btn-new-group" class="ghost">Nouveau groupe</button>
 <button id="btn-upload-proof" class="ghost">Envoyer preuve (facultatif)</button>
 <button id="btn-logout" class="ghost">Se déconnecter</button>
 </div>
@@ -60,10 +64,11 @@
 <section class="chat">
 <header class="chat-header">
 <h2 id="room-title"># général</h2>
+<div id="chat-subtitle" class="subtitle"></div>
 </header>
 <ul class="messages" id="messages"></ul>
 <form class="composer" id="composer" autocomplete="off">
-<input type="text" id="msg-input" placeholder="Écrire un message…" maxlength="800" />
+<input type="text" id="msg-input" placeholder="Écrire un message…" maxlength="1000" />
 <button class="primary" id="btn-send" type="submit">Envoyer</button>
 </form>
 </section>
@@ -75,10 +80,9 @@
 <h3>Créer un compte</h3>
 <div class="tos">
 <h4>Conditions d’utilisation & confidentialité</h4>
-<p>Nous stockons <strong>prénom</strong>, <strong>nom</strong>, <strong>e-mail</strong> et <strong>classe</strong>
-pour vérifier l’appartenance au lycée et faire fonctionner le chat. La <strong>photo du carnet</strong> est
-<strong>facultative</strong> (en cas de vérification) et <strong>supprimée automatiquement sous 72 h</strong>.
-Données hébergées en UE, jamais revendues.</p>
+<p>Nous stockons <strong>prénom, nom, e-mail, classe</strong> pour vérifier l’appartenance au lycée et faire
+fonctionner le chat. La <strong>photo du carnet</strong> est <strong>facultative</strong> (en cas de vérif.)
+et <strong>supprimée automatiquement sous 72 h</strong>. Données hébergées en UE, jamais revendues.</p>
 <label class="checkbox"><input type="checkbox" id="chk-consent" required /> J’accepte ces conditions</label>
 </div>
 
@@ -143,14 +147,34 @@ Données hébergées en UE, jamais revendues.</p>
 <div class="modal-card directory-card">
 <div class="dir-header">
 <h3>Annuaire du lycée</h3>
-<input type="search" id="dir-q" placeholder="Rechercher un prénom, un nom ou une classe…" />
+<input type="search" id="dir-q" placeholder="Rechercher prénom, nom ou classe…" />
 </div>
 <ul id="dir-list" class="dir-list"></ul>
 <menu>
 <button type="button" class="ghost close-modal">Fermer</button>
-<button id="dir-create" class="primary" title="Bientôt : créer un groupe/MP" disabled>Créer un groupe (bientôt)</button>
+<button id="dir-dm" class="primary" disabled>MP</button>
+<button id="dir-group" class="ghost" disabled>Créer un groupe</button>
 </menu>
 </div>
+</dialog>
+
+<!-- MODAL: Réglages -->
+<dialog id="modal-settings">
+<form method="dialog" class="modal-card settings-card">
+<h3>Réglages</h3>
+<div class="grid">
+<label>Prénom<input type="text" id="st-first" /></label>
+<label>Nom<input type="text" id="st-last" /></label>
+<label>Classe<input type="text" id="st-class" /></label>
+<label>Bio<textarea id="st-bio" rows="3" placeholder="Quelques mots sur toi…"></textarea></label>
+<label>Photo de profil<input type="file" id="st-avatar" accept="image/*" /></label>
+</div>
+<menu>
+<button type="button" class="ghost close-modal">Fermer</button>
+<button id="st-save" class="primary" value="default">Enregistrer</button>
+</menu>
+<div class="form-msg" id="st-msg"></div>
+</form>
 </dialog>
 </body>
 </html>
